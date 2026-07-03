@@ -359,6 +359,7 @@
           <div class="chip" data-val="腰背酸困">腰背酸困</div>
           <div class="chip" data-val="抵抗力差">抵抗力差</div>
           <div class="chip" data-val="肢体水肿">肢体水肿</div>
+          <div class="chip" data-val="肢体困重酸胀">肢体困重酸胀</div>
           <div class="chip" data-val="易过敏">易过敏</div>
           <div class="chip" data-val="头痛">头痛</div>
           <div class="chip" data-val="头晕">头晕</div>
@@ -414,50 +415,7 @@
 // ══════════════════════════════════════════════
 
 // 方剂完整列表（供"全部方剂"页使用）
-const FANGJI = [
-  { no:1,  disease:'咳嗽、喘证',   zheng:'痰湿壅肺证',         doctor:'李巧兰', dept:'心血管三病区', deptCls:'dc-card',
-    syms:'咳嗽伴咳粘稠痰，身体乏困沉重，食欲减退伴腹胀', cat:'呼吸' },
-  { no:2,  disease:'哮喘',         zheng:'寒饮犯肺证',         doctor:'贾琦',   dept:'治未病科',     deptCls:'dc-prev',
-    syms:'哮鸣咳嗽、气短、气促', cat:'呼吸' },
-  { no:3,  disease:'肺胀、喘证',   zheng:'痰湿壅肺证',         doctor:'郭振华', dept:'呼吸科 / 耳鼻喉科', deptCls:'dc-resp',
-    syms:'咳嗽、喘促、胸闷、气短', cat:'呼吸' },
-  { no:5,  disease:'痹证',         zheng:'寒凝血瘀证',         doctor:'贾琦 / 王颖', dept:'治未病科 / 风湿八科', deptCls:'dc-bone',
-    syms:'关节僵痛、屈伸不利；全身关节怕冷，疼痛，活动不利，痛部位固定，遇寒加重', cat:'骨关节' },
-  { no:6,  disease:'痹病',         zheng:'风湿痹阻证',         doctor:'任宝娣', dept:'风湿免疫七科', deptCls:'dc-bone',
-    syms:'四肢关节肿痛，阴雨天加重，僵硬感明显，屈伸不利', cat:'骨关节' },
-  { no:7,  disease:'痹病',         zheng:'寒湿痹阻证',         doctor:'魏长征 / 李锐', dept:'风湿免疫一/二/六科', deptCls:'dc-bone',
-    syms:'关节畏寒怕冷疼痛，保暖后减轻', cat:'骨关节' },
-  { no:8,  disease:'痹病',         zheng:'风寒湿痹阻证',       doctor:'董正华', dept:'风湿免疫三科', deptCls:'dc-bone',
-    syms:'关节疼痛僵硬，畏寒怕冷，肢体冷痛，神疲乏力，腰背酸困，抵抗力差', cat:'骨关节' },
-  { no:9,  disease:'骨痹',         zheng:'风寒痹阻证',         doctor:'王瑞松', dept:'骨科',         deptCls:'dc-bone',
-    syms:'膝关节怕冷僵硬，走路或上下楼疼痛，受凉后加重', cat:'骨关节' },
-  { no:10, disease:'痞满',         zheng:'痰湿中阻证',         doctor:'郝思杨', dept:'心血管二病区', deptCls:'dc-card',
-    syms:'腹部痞塞胀满，胸膈满闷，恶心欲呕，口中黏腻，不思饮食，身体困重，大便溏软', cat:'消化' },
-  { no:12, disease:'胃痛、腹胀',   zheng:'脾胃虚弱证',         doctor:'唐梦凡', dept:'消化科',       deptCls:'dc-dige',
-    syms:'胃脘隐痛冷痛，得温则减，遇寒加重；腹胀食欲不振，大便稀溏；畏寒肢冷，神疲乏力', cat:'消化' },
-  { no:13, disease:'胸痹、心悸',   zheng:'寒凝心脉证',         doctor:'范秀风', dept:'心血管二病区', deptCls:'dc-card',
-    syms:'胸痛如绞，遇寒即作，甚则胸痛彻背；胸闷气短，心悸乏力，四肢厥冷，畏风寒', cat:'心血管' },
-  { no:14, disease:'心衰',         zheng:'寒凝血脉证',         doctor:'李巧兰', dept:'心血管三病区', deptCls:'dc-card',
-    syms:'怕冷四肢发凉，口唇指甲青紫，下肢水肿明显', cat:'心血管' },
-  { no:15, disease:'痛经',         zheng:'寒凝血瘀证',         doctor:'李娜',   dept:'妇产科',       deptCls:'dc-gyne',
-    syms:'经期小腹冷痛，经量少、色暗有血块', cat:'妇科' },
-  { no:16, disease:'痹症',         zheng:'风寒痹阻证',         doctor:'王瑞辉', dept:'针灸推拿康复科', deptCls:'dc-rehb',
-    syms:'畏寒怕冷，肢体水肿，胸痛青紫，大便溏', cat:'骨关节' },
-  { no:17, disease:'咳嗽、喘病（儿科）', zheng:'肺脾气虚证',  doctor:'吴秋艳', dept:'儿科',         deptCls:'dc-pedi',
-    syms:'3-14岁反复鼻塞流涕及咳嗽咳痰，或伴有喘息，过敏易感体质及免疫力差', cat:'呼吸' },
-  { no:18, disease:'大偻',         zheng:'寒湿痹阻证',         doctor:'王颖',   dept:'风湿免疫七科', deptCls:'dc-bone',
-    syms:'腰脊部冷痛僵硬，遇冷加重，全身关节怕冷，身体沉重乏困', cat:'骨关节' },
-  { no:19, disease:'痹症',         zheng:'血虚寒凝证',         doctor:'陈沛',   dept:'神经内分泌科', deptCls:'dc-neur',
-    syms:'肢体麻木无力，畏寒怕冷，肢体冷痛，神疲乏力，抵抗力差', cat:'骨关节' },
-  { no:20, disease:'膝痹',         zheng:'阳虚寒凝证',         doctor:'董琪',   dept:'MDT疼痛门诊',  deptCls:'dc-pain',
-    syms:'膝关节冷痛固定，遇冷加剧，热敷后减轻；下肢沉重酸胀，屈伸受限，晨起僵硬', cat:'骨关节' },
-  { no:21, disease:'项痹',         zheng:'风寒湿阻证',         doctor:'董琪',   dept:'MDT疼痛门诊',  deptCls:'dc-pain',
-    syms:'颈项冷痛僵硬，转头屈伸不利，受凉后加剧，热敷后缓解；颈部沉重困乏', cat:'骨关节' },
-  { no:22, disease:'肩痹',         zheng:'寒湿痹阻证',         doctor:'董琪',   dept:'MDT疼痛门诊',  deptCls:'dc-pain',
-    syms:'肩部冷痛，活动受限，痛点固定，遇寒加重，得温痛减；晨起僵硬，抬举外展受限', cat:'骨关节' },
-  { no:23, disease:'咳喘病',       zheng:'气虚血瘀兼寒痰伏肺证', doctor:'吕水英 / 邵娟', dept:'急诊科', deptCls:'dc-emrg',
-    syms:'反复感冒咳嗽，畏风恶寒，咳痰气喘；易过敏，易腹泻胃胀，易心慌胸闷头痛', cat:'呼吸' },
-];
+// FANGJI 已合并到 ZHENGS，见下方数据
 
 // 分类列表
 const CATS = ['全部','呼吸','骨关节','消化','心血管','妇科'];
@@ -482,9 +440,11 @@ if (filterEl) {
 
 function renderList() {
   const q = document.getElementById('fjSearch').value.trim().toLowerCase();
-  const data = FANGJI.filter(f => {
+  // 直接从 ZHENGS 读取，无需维护 FANGJI
+  const data = ZHENGS.filter(f => {
     const matchCat = activeCat === '全部' || f.cat === activeCat;
-    const matchQ = !q || [f.disease, f.zheng, f.dept, f.syms, f.doctor]
+    const deptNames = f.depts.map(d => d.name).join(' ');
+    const matchQ = !q || [f.disease, f.name, deptNames, f.syms || '', f.doctor || '']
       .some(s => s.toLowerCase().includes(q));
     return matchCat && matchQ;
   });
@@ -497,28 +457,31 @@ function renderList() {
     listEl.innerHTML = '<div class="fj-empty">未找到匹配的方剂</div>';
     return;
   }
-  listEl.innerHTML = data.map(f => `
+  listEl.innerHTML = data.map((f, i) => {
+    const deptCls = f.depts[0]?.cls || 'dc-prev';
+    const deptLabel = f.depts.map(d => d.name).join(' / ');
+    return `
     <div class="fj-card">
       <div class="fj-card-head">
-        <span class="fj-no">No.${f.no}</span>
+        <span class="fj-no">No.${i + 1}</span>
         <div class="fj-title-block">
           <div class="fj-disease">${f.disease}</div>
-          <div class="fj-zheng">${f.zheng}</div>
+          <div class="fj-zheng">${f.name}</div>
         </div>
-        <span class="fj-dept-tag ${f.deptCls}">${f.dept}</span>
+        <span class="fj-dept-tag ${deptCls}">${deptLabel}</span>
       </div>
       <div class="fj-card-body">
         <div class="fj-row">
           <span class="fj-row-label">主要症状</span>
-          <span class="fj-row-val">${f.syms}</span>
+          <span class="fj-row-val">${f.syms || '—'}</span>
         </div>
         <div class="fj-row">
           <span class="fj-row-label">拟方医师</span>
-          <span class="fj-row-val fj-doctor">${f.doctor}</span>
+          <span class="fj-row-val fj-doctor">${f.doctor || '—'}</span>
         </div>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 if (document.getElementById('fjSearch')) renderList();
 
@@ -528,6 +491,9 @@ const ZHENGS = [
     // 以消化/全身症状为主，归心血管三病区；无气促气喘也可命中
     name: '痰湿壅肺证',
     disease: '咳嗽 · 喘证',
+    doctor: '李巧兰',
+    syms: '咳嗽伴咳粘稠痰，身体乏困沉重，食欲减退伴腹胀',
+    cat: '呼吸',
     keys: ['咳嗽咳痰','身体困重','食欲不振','腹胀胃胀'],
     depts: [
       { name: '心血管三病区', cls: 'dc-card', icon: '❤️' },
@@ -537,6 +503,9 @@ const ZHENGS = [
     // 以呼吸症状为主，归呼吸科；required 确保必须选了"气促气喘"才推荐
     name: '痰湿壅肺证',
     disease: '肺胀 · 喘证',
+    doctor: '郭振华',
+    syms: '咳嗽、喘促、胸闷、气短',
+    cat: '呼吸',
     keys: ['气促气喘','胸闷气短','咳嗽咳痰'],
     required: '气促气喘',
     depts: [
@@ -548,6 +517,9 @@ const ZHENGS = [
     // 哮喘：必须有哮鸣音才命中
     name: '寒饮犯肺证',
     disease: '哮喘',
+    doctor: '贾琦',
+    syms: '哮鸣咳嗽、气短、气促',
+    cat: '呼吸',
     keys: ['咳嗽咳痰','气促气喘','胸闷气短','哮鸣音'],
     required: '哮鸣音',
     depts: [
@@ -558,6 +530,9 @@ const ZHENGS = [
     // 儿科专属：keys 全部使用儿科前缀，成人选呼吸症状不会命中此条
     name: '肺脾气虚证',
     disease: '咳嗽 · 喘证（儿科）',
+    doctor: '吴秋艳',
+    syms: '3-14岁反复鼻塞流涕及咳嗽咳痰，或伴有喘息，过敏易感体质及免疫力差',
+    cat: '呼吸',
     keys: ['儿科-鼻塞流涕','儿科-咳嗽咳痰','儿科-气促气喘','儿科-易过敏','儿科-抵抗力差'],
     depts: [
       { name: '儿科', cls: 'dc-pedi', icon: '👶' },
@@ -566,6 +541,9 @@ const ZHENGS = [
   {
     name: '气虚血瘀兼寒痰伏肺证',
     disease: '咳喘病',
+    doctor: '吕水英 / 邵娟',
+    syms: '反复感冒咳嗽，畏风恶寒，咳痰气喘；易过敏，易腹泻胃胀，易心慌胸闷头痛',
+    cat: '呼吸',
     keys: ['反复感冒','咳嗽咳痰','气促气喘','神疲乏力','畏寒怕冷','胸闷气短','大便稀溏','腹胀胃胀','头痛','头晕','易过敏'],
     //manifestations: ['反复感冒','咳嗽咳痰','气喘气短','神疲乏力','畏寒怕冷','易腹泻','心慌胸闷','头晕乏力'],
     depts: [
@@ -575,6 +553,9 @@ const ZHENGS = [
   {
     name: '寒凝血瘀证',
     disease: '痹证',
+    doctor: '贾琦 / 王颖',
+    syms: '关节僵痛、屈伸不利；全身关节怕冷，疼痛，活动不利，痛部位固定，遇寒加重',
+    cat: '骨关节',
     keys: ['关节冷痛','关节僵硬','屈伸不利','畏寒怕冷','遇寒加重'],
     //manifestations: ['关节冷痛','关节僵硬','屈伸不利','痛处固定','遇寒加重'],
     depts: [
@@ -585,6 +566,9 @@ const ZHENGS = [
   {
     name: '风湿痹阻证',
     disease: '痹病',
+    doctor: '任宝娣',
+    syms: '四肢关节肿痛，阴雨天加重，僵硬感明显，屈伸不利',
+    cat: '骨关节',
     keys: ['关节冷痛','关节僵硬','屈伸不利','遇寒加重'],
     //manifestations: ['四肢关节肿痛','阴雨天加重','关节僵硬','屈伸不利','身体困重'],
     depts: [
@@ -594,6 +578,9 @@ const ZHENGS = [
   {
     name: '寒湿痹阻证',
     disease: '痹病',
+    doctor: '魏长征 / 李锐',
+    syms: '关节畏寒怕冷疼痛，保暖后减轻',
+    cat: '骨关节',
     keys: ['关节冷痛','保暖减轻'],
     //manifestations: ['关节畏寒冷痛','保暖后减轻','腰背冷痛僵硬','颈肩冷痛','身体沉重乏困'],
     depts: [
@@ -605,6 +592,9 @@ const ZHENGS = [
   {
     name: '寒湿痹阻证',
     disease: '大偻',
+    doctor: '王颖',
+    syms: '腰脊部冷痛僵硬，遇冷加重，全身关节怕冷，身体沉重乏困',
+    cat: '骨关节',
     keys: ['关节僵硬','腰背冷痛','畏寒怕冷','身体困重','遇寒加重'],
     //manifestations: ['关节畏寒冷痛','保暖后减轻','腰背冷痛僵硬','颈肩冷痛','身体沉重乏困'],
     depts: [
@@ -614,6 +604,9 @@ const ZHENGS = [
   {
     name: '寒湿痹阻证',
     disease: '肩痹',
+    doctor: '董琪',
+    syms: '肩部冷痛，活动受限，痛点固定，遇寒加重，得温痛减；晨起僵硬，抬举外展受限',
+    cat: '骨关节',
     keys: ['关节僵硬','颈肩冷痛','屈伸不利','遇寒加重','保暖减轻'],
     //manifestations: ['关节畏寒冷痛','保暖后减轻','腰背冷痛僵硬','颈肩冷痛','身体沉重乏困'],
     depts: [
@@ -623,6 +616,9 @@ const ZHENGS = [
   {
     name: '风寒湿痹阻证',
     disease: '痹病',
+    doctor: '董正华',
+    syms: '关节疼痛僵硬，畏寒怕冷，肢体冷痛，神疲乏力，腰背酸困，抵抗力差',
+    cat: '骨关节',
     keys: ['关节冷痛','关节僵硬','畏寒怕冷','神疲乏力','抵抗力差','腰背酸困'],
     //manifestations: ['关节疼痛僵硬','畏寒怕冷','肢体冷痛','神疲乏力','腰背酸困','抵抗力差'],
     depts: [
@@ -632,6 +628,9 @@ const ZHENGS = [
   {
     name: '风寒痹阻证',
     disease: '骨痹',
+    doctor: '王瑞松',
+    syms: '膝关节怕冷僵硬，走路或上下楼疼痛，受凉后加重',
+    cat: '骨关节',
     keys: ['关节冷痛','关节僵硬','遇寒加重'],
     //manifestations: ['膝关节怕冷僵硬','上下楼疼痛','受凉后加重','肢体麻木','畏寒怕冷'],
     depts: [
@@ -641,7 +640,10 @@ const ZHENGS = [
   {
     name: '风寒痹阻证',
     disease: '痹症',
-    keys: ['畏寒怕冷','大便稀溏','肢体水肿'],
+    doctor: '王瑞辉',
+    syms: '畏寒怕冷，肢体水肿，胸痛青紫，大便溏',
+    cat: '骨关节',
+    keys: ['关节冷痛','关节僵硬','遇寒加重','屈伸不利','颈肩冷痛','腰背冷痛','肢体困重酸胀'],
     //manifestations: ['膝关节怕冷僵硬','上下楼疼痛','受凉后加重','肢体麻木','畏寒怕冷'],
     depts: [
       { name: '针灸推拿康复科', cls: 'dc-rehb', icon: '🙌' },
@@ -650,6 +652,9 @@ const ZHENGS = [
   {
     name: '阳虚寒凝证',
     disease: '膝痹',
+    doctor: '董琪',
+    syms: '膝关节冷痛固定，遇冷加剧，热敷后减轻；下肢沉重酸胀，屈伸受限，晨起僵硬',
+    cat: '骨关节',
     keys: ['关节僵硬','关节冷痛','遇寒加重','保暖减轻','畏寒怕冷','屈伸不利'],
     //manifestations: ['膝关节冷痛固定','遇冷加剧','热敷后减轻','下肢沉重酸胀','晨起僵硬'],
     depts: [
@@ -659,6 +664,9 @@ const ZHENGS = [
   {
     name: '风寒湿阻证',
     disease: '项痹',
+    doctor: '董琪',
+    syms: '颈项冷痛僵硬，转头屈伸不利，受凉后加剧，热敷后缓解；颈部沉重困乏',
+    cat: '骨关节',
     keys: ['颈肩冷痛','畏寒怕冷','遇寒加重','关节僵硬','保暖减轻','屈伸不利'],
     //manifestations: ['颈项冷痛僵硬','转头不利','受凉加剧','颈部沉重困乏','畏寒怕冷'],
     depts: [
@@ -668,6 +676,9 @@ const ZHENGS = [
   {
     name: '血虚寒凝证',
     disease: '痹症',
+    doctor: '陈沛',
+    syms: '肢体麻木无力，畏寒怕冷，肢体冷痛，神疲乏力，抵抗力差',
+    cat: '骨关节',
     keys: ['肢体麻木','畏寒怕冷','关节冷痛','神疲乏力','抵抗力差'],
     //manifestations: ['肢体麻木无力','畏寒怕冷','肢体冷痛','神疲乏力','抵抗力差'],
     depts: [
@@ -677,6 +688,9 @@ const ZHENGS = [
   {
     name: '痰湿中阻证',
     disease: '痞满',
+    doctor: '郝思杨',
+    syms: '腹部痞塞胀满，胸膈满闷，恶心欲呕，口中黏腻，不思饮食，身体困重，大便溏软',
+    cat: '消化',
     keys: ['腹胀胃胀','恶心欲呕','食欲不振','身体困重','大便稀溏','口中黏腻','大便黏滞不爽'],
     //manifestations: ['腹部痞塞胀满','胸膈满闷','恶心欲呕','口中黏腻','不思饮食','身体困重'],
     depts: [
@@ -686,6 +700,9 @@ const ZHENGS = [
   {
     name: '脾胃虚弱证',
     disease: '胃痛 · 腹胀',
+    doctor: '唐梦凡',
+    syms: '胃脘隐痛冷痛，得温则减，遇寒加重；腹胀食欲不振，大便稀溏；畏寒肢冷，神疲乏力',
+    cat: '消化',
     keys: ['胃脘冷痛','腹胀胃胀','食欲不振','大便稀溏','畏寒怕冷','神疲乏力','遇寒加重','保暖减轻'],
     //manifestations: ['胃脘隐痛冷痛','得温则减','腹部胀满','食欲不振','大便稀溏','畏寒肢冷'],
     depts: [
@@ -695,6 +712,9 @@ const ZHENGS = [
   {
     name: '寒凝心脉证',
     disease: '胸痹 · 心悸',
+    doctor: '范秀风',
+    syms: '胸痛如绞，遇寒即作，甚则胸痛彻背；胸闷气短，心悸乏力，四肢厥冷，畏风寒',
+    cat: '心血管',
     keys: ['胸痛心悸','畏寒怕冷','四肢发凉','神疲乏力','胸闷气短'],
     //manifestations: ['胸痛如绞','遇寒即作','胸痛彻背','肢冷汗出','心悸乏力','四肢厥冷'],
     depts: [
@@ -704,6 +724,9 @@ const ZHENGS = [
   {
     name: '寒凝血脉证',
     disease: '心衰',
+    doctor: '李巧兰',
+    syms: '怕冷四肢发凉，口唇指甲青紫，下肢水肿明显',
+    cat: '心血管',
     keys: ['畏寒怕冷','四肢发凉','下肢水肿','口唇青紫'],
     //manifestations: ['怕冷四肢发凉','口唇指甲青紫','下肢水肿明显','神疲乏力'],
     depts: [
@@ -713,6 +736,9 @@ const ZHENGS = [
   {
     name: '寒凝血瘀证',
     disease: '痛经',
+    doctor: '李娜',
+    syms: '经期小腹冷痛，经量少、色暗有血块',
+    cat: '妇科',
     keys: ['痛经','月经量少色暗','小腹冷痛'],
     //manifestations: ['经期小腹冷痛','月经量少色暗','血块较多','畏寒怕冷'],
     depts: [
