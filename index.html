@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>三伏贴导诊 · 西安市第五医院</title>
+<style>
+  :root {
+    --ink: #1a1612; --ink-2: #5c5248; --ink-3: #9c8e82;
+    --paper: #faf7f2; --paper-2: #f0ebe2; --paper-3: #e4ddd2;
+    --gold: #b07d3a; --gold-light: #f5ecd8; --gold-border: #d4a85a;
+    --radius: 12px; --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
+    background: var(--paper); color: var(--ink);
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+  }
+
+  /* ── Header ── */
+  .hd {
+    width: 100%; background: var(--ink); color: var(--paper);
+    text-align: center; padding: 22px 20px 18px; position: relative;
+  }
+  .hd::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:3px;
+    background: linear-gradient(90deg, var(--gold), #e8b96a, var(--gold));
+  }
+  .hd-hospital { font-size:12px; color:#c8b89a; letter-spacing:.1em; margin-bottom:6px; }
+  .hd-eyebrow  { font-size:11px; letter-spacing:.2em; color:var(--gold-border); margin-bottom:6px; }
+  .hd h1 { font-size:24px; font-weight:600; letter-spacing:.05em; margin-bottom:4px; }
+  .hd-sub { font-size:13px; color:#a89e94; }
+  .season-badge {
+    display:inline-flex; align-items:center; gap:5px;
+    margin-top:12px; padding:5px 14px;
+    border:1px solid #3a3330; border-radius:20px; font-size:12px; color:#a89e94;
+  }
+  .dot { width:6px; height:6px; border-radius:50%; background:var(--gold-border); }
+
+  /* ── Nav tabs ── */
+  .nav-tabs {
+    width:100%; max-width:480px;
+    display:flex; border-bottom:1px solid var(--paper-3);
+    position:sticky; top:0; background:var(--paper); z-index:10;
+  }
+  .nav-tab {
+    flex:1; padding:12px 6px; text-align:center;
+    font-size:13px; color:var(--ink-3);
+    cursor:pointer; border-bottom:2px solid transparent;
+    transition:all .15s; -webkit-tap-highlight-color:transparent;
+    user-select:none;
+  }
+  .nav-tab.active { color:var(--gold); border-bottom-color:var(--gold); font-weight:500; }
+
+  /* ── Main ── */
+  .main { width:100%; max-width:480px; padding:0 0 40px; }
+  .page { display:none; }
+  .page.active { display:block; }
+  /* 全部方剂Tab隐藏时，导诊页始终显示 */
+  #page-guide { display:block; }
+
+  /* ── Step visibility ── */
+  .step { display:none; }
+  .step.active { display:block; }
+
+  /* ── Symptom chips ── */
+  .sym-section { padding:18px 16px 0; }
+  .sym-label {
+    display:flex; align-items:center; gap:8px;
+    font-size:11px; font-weight:600; letter-spacing:.12em;
+    color:var(--ink-3); margin-bottom:10px;
+  }
+  .sym-label::before,.sym-label::after { content:''; flex:1; height:1px; background:var(--paper-3); }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .chip {
+    padding:8px 14px; border:1px solid var(--paper-3); border-radius:20px;
+    font-size:13px; color:var(--ink-2); background:var(--paper);
+    cursor:pointer; transition:all .18s;
+    -webkit-tap-highlight-color:transparent; user-select:none;
+  }
+  .chip:active { transform:scale(.96); }
+  .chip.on { background:var(--gold-light); border-color:var(--gold-border); color:var(--gold); font-weight:500; }
+
+  /* ── Counter bar ── */
+  .counter-bar {
+    position:sticky; bottom:0; background:var(--paper);
+    border-top:1px solid var(--paper-3); padding:14px 16px;
+    display:flex; align-items:center; gap:12px;
+  }
+  .counter-text { font-size:13px; color:var(--ink-3); flex:1; }
+  .counter-text strong { color:var(--gold); }
+  .cta {
+    flex-shrink:0; padding:11px 24px; background:var(--ink); color:var(--paper);
+    border:none; border-radius:var(--radius-sm); font-size:15px; font-weight:500;
+    cursor:pointer; -webkit-tap-highlight-color:transparent;
+    transition:background .15s,transform .1s;
+  }
+  .cta:not(:disabled):active { transform:scale(.97); }
+  .cta:disabled { background:var(--paper-3); color:var(--ink-3); cursor:not-allowed; }
+  .cta-sec {
+    flex-shrink:0; padding:11px 14px; background:none; color:var(--ink-2);
+    border:1px solid var(--paper-3); border-radius:var(--radius-sm);
+    font-size:13px; cursor:pointer; -webkit-tap-highlight-color:transparent;
+    transition:background .15s,transform .1s; white-space:nowrap;
+  }
+  .cta-sec:active { transform:scale(.97); }
+  .cta-sec:hover { background:var(--paper-2); }
+
+  /* ── Loading ── */
+  #loading { padding:60px 20px; text-align:center; }
+  .spinner {
+    width:36px; height:36px; border:2px solid var(--paper-3);
+    border-top-color:var(--gold); border-radius:50%; margin:0 auto 16px;
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  #loading p { font-size:14px; color:var(--ink-3); }
+
+  /* ── Result cards ── */
+  .result-header { padding:18px 16px 12px; border-bottom:1px solid var(--paper-3); }
+  .result-header h2 { font-size:17px; font-weight:600; margin-bottom:4px; }
+  .result-header p { font-size:13px; color:var(--ink-3); }
+  .result-body { padding:12px 16px; display:flex; flex-direction:column; gap:12px; }
+
+  .zheng-card { background:var(--paper); border:1px solid var(--paper-3); border-radius:var(--radius); overflow:hidden; }
+  .zheng-head {
+    display:flex; align-items:flex-start; gap:10px;
+    padding:14px 16px 12px; border-bottom:1px solid var(--paper-2);
+  }
+  .zheng-rank {
+    width:26px; height:26px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:700; margin-top:2px;
+  }
+  .zr1 { background:var(--gold-light); color:var(--gold); border:1px solid var(--gold-border); }
+  .zr2 { background:var(--paper-2); color:var(--ink-2); border:1px solid var(--paper-3); }
+  .zr3 { background:#f5ede8; color:#8a5040; border:1px solid #ddb8a8; }
+  .zheng-info { flex:1; }
+  .zheng-name { font-size:17px; font-weight:600; letter-spacing:.03em; }
+  .zheng-disease { font-size:12px; color:var(--ink-3); margin-top:3px; }
+  .match-col { display:flex; flex-direction:column; align-items:flex-end; gap:3px; flex-shrink:0; }
+  .match-pct { font-size:12px; color:var(--gold); font-weight:500; }
+  .bar-track { width:60px; height:4px; background:var(--paper-3); border-radius:2px; overflow:hidden; }
+  .bar-fill { height:100%; background:var(--gold); border-radius:2px; }
+  .zheng-body { padding:12px 16px; display:flex; flex-direction:column; gap:10px; }
+  .manif-label { font-size:11px; color:var(--ink-3); letter-spacing:.05em; margin-bottom:6px; }
+  .manif-chips { display:flex; flex-wrap:wrap; gap:5px; }
+  .manif-chip {
+    font-size:12px; padding:3px 10px; border-radius:10px;
+    background:var(--paper-2); color:var(--ink-2); border:1px solid var(--paper-3);
+  }
+  .manif-chip.hit { background:var(--gold-light); color:var(--gold); border-color:var(--gold-border); }
+  .dept-row {
+    display:flex; align-items:flex-start; gap:8px;
+    padding-top:10px; border-top:1px solid var(--paper-2); flex-wrap:wrap;
+  }
+  .dept-label { font-size:11px; color:var(--ink-3); flex-shrink:0; padding-top:5px; }
+  .dept-tag {
+    display:inline-flex; align-items:center; gap:4px;
+    font-size:12px; font-weight:500; padding:4px 10px; border-radius:6px;
+  }
+  .dc-resp { background:#e6f0fa; color:#1a5fa8; }
+  .dc-bone { background:#f0eafa; color:#6b3aaa; }
+  .dc-dige { background:#fef3e2; color:#a05c0a; }
+  .dc-card { background:#fde8e8; color:#a82020; }
+  .dc-gyne { background:#fde8f0; color:#a83060; }
+  .dc-pedi { background:#e6faf0; color:#1a7a4a; }
+  .dc-rehb { background:#eaf4f0; color:#1a6a5a; }
+  .dc-neur { background:#f5f0fa; color:#5a3a8a; }
+  .dc-pain { background:#faf0e6; color:#8a5010; }
+  .dc-prev { background:#f0f5e6; color:#4a6a1a; }
+  .dc-emrg { background:#f5e6e6; color:#8a2020; }
+
+  .tip-box {
+    margin:0 16px; padding:12px 14px;
+    background:var(--paper-2); border-radius:var(--radius-sm);
+    font-size:12px; color:var(--ink-3); line-height:1.8;
+  }
+  .tip-box strong { color:var(--ink-2); }
+  .back-btn {
+    display:block; width:calc(100% - 32px); margin:12px 16px 0;
+    padding:12px; background:none; border:1px solid var(--paper-3);
+    border-radius:var(--radius-sm); font-size:14px; color:var(--ink-2);
+    cursor:pointer; text-align:center; transition:background .15s;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .back-btn:hover { background:var(--paper-2); }
+
+  /* ══ 方剂列表页 ══ */
+  .fj-search-bar { padding:14px 16px 0; }
+  .fj-search {
+    width:100%; padding:10px 14px;
+    border:1px solid var(--paper-3); border-radius:var(--radius-sm);
+    font-size:14px; color:var(--ink); background:var(--paper);
+    outline:none;
+  }
+  .fj-search:focus { border-color:var(--gold-border); }
+
+  .fj-filter { padding:12px 16px 0; display:flex; flex-wrap:wrap; gap:6px; }
+  .fj-filter-btn {
+    padding:5px 12px; border:1px solid var(--paper-3); border-radius:14px;
+    font-size:12px; color:var(--ink-3); background:var(--paper);
+    cursor:pointer; -webkit-tap-highlight-color:transparent;
+    transition:all .15s;
+  }
+  .fj-filter-btn.on { background:var(--gold-light); border-color:var(--gold-border); color:var(--gold); font-weight:500; }
+
+  .fj-count { padding:10px 16px 0; font-size:12px; color:var(--ink-3); }
+  .fj-count strong { color:var(--gold); }
+
+  .fj-list { padding:10px 16px; display:flex; flex-direction:column; gap:10px; }
+
+  .fj-card {
+    background:var(--paper); border:1px solid var(--paper-3);
+    border-radius:var(--radius); overflow:hidden;
+  }
+  .fj-card-head {
+    padding:12px 14px 10px;
+    border-bottom:1px solid var(--paper-2);
+    display:flex; align-items:flex-start; justify-content:space-between; gap:8px;
+  }
+  .fj-no {
+    font-size:11px; color:var(--ink-3);
+    background:var(--paper-2); border-radius:4px;
+    padding:2px 7px; flex-shrink:0; margin-top:2px;
+  }
+  .fj-title-block { flex:1; }
+  .fj-disease { font-size:15px; font-weight:600; }
+  .fj-zheng { font-size:12px; color:var(--ink-3); margin-top:3px; }
+  .fj-dept-tag {
+    display:inline-flex; align-items:center; gap:3px;
+    font-size:11px; font-weight:500; padding:3px 8px; border-radius:5px; flex-shrink:0;
+  }
+  .fj-card-body { padding:10px 14px; display:flex; flex-direction:column; gap:7px; }
+  .fj-row { display:flex; gap:6px; }
+  .fj-row-label { font-size:11px; color:var(--ink-3); flex-shrink:0; padding-top:1px; min-width:44px; }
+  .fj-row-val { font-size:13px; color:var(--ink-2); line-height:1.6; }
+  .fj-doctor { font-size:12px; color:var(--ink-3); }
+
+  .fj-empty { text-align:center; padding:40px 20px; font-size:14px; color:var(--ink-3); }
+
+  /* ── Footer ── */
+  .ft {
+    width:100%; text-align:center; padding:16px 20px;
+    font-size:11px; color:var(--ink-3);
+    border-top:1px solid var(--paper-3); margin-top:8px; line-height:1.8;
+  }
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <div class="hd-hospital">西安市第五医院</div>
+  <div class="hd-eyebrow">冬病夏治 · 穴位贴敷</div>
+  <h1>三伏贴导诊</h1>
+  <div class="hd-sub">选择症状 · 辨证分型 · 推荐科室</div>
+  <div class="season-badge"><span class="dot"></span>三伏天专属 · 借天时温阳驱寒</div>
+</header>
+
+<!-- 顶部导航 -->
+<!-- 全部方剂 Tab 暂时隐藏，代码保留 -->
+<!--
+<div class="nav-tabs" role="tablist">
+  <div class="nav-tab active" role="tab" onclick="switchPage('guide')">🔍 症状导诊</div>
+  <div class="nav-tab" role="tab" onclick="switchPage('list')">📋 全部方剂</div>
+</div>
+-->
+
+<div class="main">
+
+  <!-- ══════════ PAGE 1：导诊 ══════════ -->
+  <div class="page active" id="page-guide">
+
+    <!-- STEP 1 -->
+    <div class="step active" id="step1">
+      <div class="sym-section">
+        <div class="sym-label">呼吸症状</div>
+        <div class="chips">
+          <div class="chip" data-val="咳嗽咳痰">咳嗽咳痰</div>
+          <div class="chip" data-val="气促气喘">气促气喘</div>
+          <div class="chip" data-val="哮鸣音">哮鸣音</div>
+          <div class="chip" data-val="胸闷气短">胸闷气短</div>
+          <div class="chip" data-val="鼻塞流涕">鼻塞流涕</div>
+          <div class="chip" data-val="反复感冒">反复感冒</div>
+          <div class="chip" data-val="咽喉不适">咽喉不适</div>
+        </div>
+      </div>
+
+      <div class="sym-section">
+        <div class="sym-label">寒热症状</div>
+        <div class="chips">
+          <div class="chip" data-val="畏寒怕冷">畏寒怕冷</div>
+          <div class="chip" data-val="四肢发凉">四肢发凉</div>
+          <div class="chip" data-val="遇寒加重">遇寒加重</div>
+          <div class="chip" data-val="保暖减轻">保暖减轻</div>
+        </div>
+      </div>
+
+      <div class="sym-section">
+        <div class="sym-label">骨关节症状</div>
+        <div class="chips">
+          <div class="chip" data-val="关节冷痛">关节冷痛</div>
+          <div class="chip" data-val="关节僵硬">关节僵硬</div>
+          <div class="chip" data-val="腰背冷痛">腰背冷痛</div>
+          <div class="chip" data-val="颈肩冷痛">颈肩冷痛</div>
+          <div class="chip" data-val="肢体麻木">肢体麻木</div>
+          <div class="chip" data-val="屈伸不利">屈伸不利</div>
+        </div>
+      </div>
+
+      <div class="sym-section">
+        <div class="sym-label">消化症状</div>
+        <div class="chips">
+          <div class="chip" data-val="胃脘冷痛">胃脘冷痛</div>
+          <div class="chip" data-val="腹胀胃胀">腹胀胃胀</div>
+          <div class="chip" data-val="恶心欲呕">恶心欲呕</div>
+          <div class="chip" data-val="口中黏腻">口中黏腻</div>
+          <div class="chip" data-val="食欲不振">食欲不振</div>
+          <div class="chip" data-val="大便稀溏">大便稀溏</div>
+          <div class="chip" data-val="大便黏滞不爽">大便黏滞不爽</div>
+        </div>
+      </div>
+
+      <div class="sym-section">
+        <div class="sym-label">心血管症状</div>
+        <div class="chips">
+          <div class="chip" data-val="胸痛心悸">胸痛心悸</div>
+          <div class="chip" data-val="下肢水肿">下肢水肿</div>
+          <div class="chip" data-val="口唇青紫">口唇青紫</div>
+        </div>
+      </div>
+
+      <div class="sym-section">
+        <div class="sym-label">妇科症状</div>
+        <div class="chips">
+          <div class="chip" data-val="痛经">痛经</div>
+          <div class="chip" data-val="月经量少色暗">月经量少色暗</div>
+          <div class="chip" data-val="小腹冷痛">小腹冷痛</div>
+        </div>
+      </div>
+
+      <div class="sym-section">
+        <div class="sym-label">儿科症状</div>
+        <div class="chips">
+          <div class="chip" data-val="儿科-咳嗽咳痰">咳嗽咳痰</div>
+          <div class="chip" data-val="儿科-气促气喘">气促气喘</div>
+          <div class="chip" data-val="儿科-鼻塞流涕">鼻塞流涕</div>
+          <div class="chip" data-val="儿科-易过敏">易过敏</div>
+          <div class="chip" data-val="儿科-抵抗力差">抵抗力差</div>
+        </div>
+      </div>
+
+      <div class="sym-section" style="padding-bottom:80px;">
+        <div class="sym-label">全身症状</div>
+        <div class="chips">    
+          <div class="chip" data-val="神疲乏力">神疲乏力</div>
+          <div class="chip" data-val="身体困重">身体困重</div>
+          <div class="chip" data-val="腰背酸困">腰背酸困</div>
+          <div class="chip" data-val="抵抗力差">抵抗力差</div>
+          <div class="chip" data-val="肢体水肿">肢体水肿</div>
+          <div class="chip" data-val="易过敏">易过敏</div>
+          <div class="chip" data-val="头痛">头痛</div>
+          <div class="chip" data-val="头晕">头晕</div>
+        </div>
+      </div>
+      <div class="counter-bar">
+        <div class="counter-text">已选 <strong id="count">0</strong> 个症状</div>
+        <button class="cta-sec" onclick="goWellness()">无以上症状</button>
+        <button class="cta" id="submitBtn" disabled onclick="goResult()">查看结果 →</button>
+      </div>
+    </div>
+
+    <!-- LOADING -->
+    <div id="loading" style="display:none;">
+      <div class="spinner"></div>
+      <p>正在辨证分析…</p>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step" id="step2">
+      <div class="result-header">
+        <h2>辨证结果与就诊建议</h2>
+        <p id="result-desc"></p>
+      </div>
+      <div class="result-body" id="resultBody"></div>
+      <div class="tip-box">
+        💡 <strong>温馨提示：</strong>以上辨证仅供参考，中医讲究"四诊合参"，最终诊断请至对应科室由医师面诊确认。三伏贴须在医师指导下贴敷，皮肤破损、过敏体质及孕妇慎用。
+      </div>
+      <button class="back-btn" onclick="goBack()">← 重新选择症状</button>
+    </div>
+
+  </div><!-- /page-guide -->
+
+  <!-- ══════════ PAGE 2：全部方剂（暂时隐藏，代码保留）══════════ -->
+  <!-- <div class="page" id="page-list">
+    <div class="fj-search-bar">
+      <input class="fj-search" type="search" placeholder="搜索病种、证型、科室…" id="fjSearch" oninput="renderList()">
+    </div>
+    <div class="fj-filter" id="fjFilter"></div>
+    <div class="fj-count" id="fjCount"></div>
+    <div class="fj-list" id="fjList"></div>
+  </div> -->
+
+</div><!-- /main -->
+
+<footer class="ft">
+  西安市第五医院 · 冬病夏治三伏贴导诊系统<br>结果仅供参考，请以医师面诊为准
+</footer>
+
+<script>
+// ══════════════════════════════════════════════
+// 数据来源：西安市第五医院三伏贴方剂症状统计台账
+// ══════════════════════════════════════════════
+
+// 方剂完整列表（供"全部方剂"页使用）
+const FANGJI = [
+  { no:1,  disease:'咳嗽、喘证',   zheng:'痰湿壅肺证',         doctor:'李巧兰', dept:'心血管三病区', deptCls:'dc-card',
+    syms:'咳嗽伴咳粘稠痰，身体乏困沉重，食欲减退伴腹胀', cat:'呼吸' },
+  { no:2,  disease:'哮喘',         zheng:'寒饮犯肺证',         doctor:'贾琦',   dept:'治未病科',     deptCls:'dc-prev',
+    syms:'哮鸣咳嗽、气短、气促', cat:'呼吸' },
+  { no:3,  disease:'肺胀、喘证',   zheng:'痰湿壅肺证',         doctor:'郭振华', dept:'呼吸科 / 耳鼻喉科', deptCls:'dc-resp',
+    syms:'咳嗽、喘促、胸闷、气短', cat:'呼吸' },
+  { no:5,  disease:'痹证',         zheng:'寒凝血瘀证',         doctor:'贾琦 / 王颖', dept:'治未病科 / 风湿八科', deptCls:'dc-bone',
+    syms:'关节僵痛、屈伸不利；全身关节怕冷，疼痛，活动不利，痛部位固定，遇寒加重', cat:'骨关节' },
+  { no:6,  disease:'痹病',         zheng:'风湿痹阻证',         doctor:'任宝娣', dept:'风湿免疫七科', deptCls:'dc-bone',
+    syms:'四肢关节肿痛，阴雨天加重，僵硬感明显，屈伸不利', cat:'骨关节' },
+  { no:7,  disease:'痹病',         zheng:'寒湿痹阻证',         doctor:'魏长征 / 李锐', dept:'风湿免疫一/二/六科', deptCls:'dc-bone',
+    syms:'关节畏寒怕冷疼痛，保暖后减轻', cat:'骨关节' },
+  { no:8,  disease:'痹病',         zheng:'风寒湿痹阻证',       doctor:'董正华', dept:'风湿免疫三科', deptCls:'dc-bone',
+    syms:'关节疼痛僵硬，畏寒怕冷，肢体冷痛，神疲乏力，腰背酸困，抵抗力差', cat:'骨关节' },
+  { no:9,  disease:'骨痹',         zheng:'风寒痹阻证',         doctor:'王瑞松', dept:'骨科',         deptCls:'dc-bone',
+    syms:'膝关节怕冷僵硬，走路或上下楼疼痛，受凉后加重', cat:'骨关节' },
+  { no:10, disease:'痞满',         zheng:'痰湿中阻证',         doctor:'郝思杨', dept:'心血管二病区', deptCls:'dc-card',
+    syms:'腹部痞塞胀满，胸膈满闷，恶心欲呕，口中黏腻，不思饮食，身体困重，大便溏软', cat:'消化' },
+  { no:12, disease:'胃痛、腹胀',   zheng:'脾胃虚弱证',         doctor:'唐梦凡', dept:'消化科',       deptCls:'dc-dige',
+    syms:'胃脘隐痛冷痛，得温则减，遇寒加重；腹胀食欲不振，大便稀溏；畏寒肢冷，神疲乏力', cat:'消化' },
+  { no:13, disease:'胸痹、心悸',   zheng:'寒凝心脉证',         doctor:'范秀风', dept:'心血管二病区', deptCls:'dc-card',
+    syms:'胸痛如绞，遇寒即作，甚则胸痛彻背；胸闷气短，心悸乏力，四肢厥冷，畏风寒', cat:'心血管' },
+  { no:14, disease:'心衰',         zheng:'寒凝血脉证',         doctor:'李巧兰', dept:'心血管三病区', deptCls:'dc-card',
+    syms:'怕冷四肢发凉，口唇指甲青紫，下肢水肿明显', cat:'心血管' },
+  { no:15, disease:'痛经',         zheng:'寒凝血瘀证',         doctor:'李娜',   dept:'妇产科',       deptCls:'dc-gyne',
+    syms:'经期小腹冷痛，经量少、色暗有血块', cat:'妇科' },
+  { no:16, disease:'痹症',         zheng:'风寒痹阻证',         doctor:'王瑞辉', dept:'针灸推拿康复科', deptCls:'dc-rehb',
+    syms:'畏寒怕冷，肢体水肿，胸痛青紫，大便溏', cat:'骨关节' },
+  { no:17, disease:'咳嗽、喘病（儿科）', zheng:'肺脾气虚证',  doctor:'吴秋艳', dept:'儿科',         deptCls:'dc-pedi',
+    syms:'3-14岁反复鼻塞流涕及咳嗽咳痰，或伴有喘息，过敏易感体质及免疫力差', cat:'呼吸' },
+  { no:18, disease:'大偻',         zheng:'寒湿痹阻证',         doctor:'王颖',   dept:'风湿免疫七科', deptCls:'dc-bone',
+    syms:'腰脊部冷痛僵硬，遇冷加重，全身关节怕冷，身体沉重乏困', cat:'骨关节' },
+  { no:19, disease:'痹症',         zheng:'血虚寒凝证',         doctor:'陈沛',   dept:'神经内分泌科', deptCls:'dc-neur',
+    syms:'肢体麻木无力，畏寒怕冷，肢体冷痛，神疲乏力，抵抗力差', cat:'骨关节' },
+  { no:20, disease:'膝痹',         zheng:'阳虚寒凝证',         doctor:'董琪',   dept:'MDT疼痛门诊',  deptCls:'dc-pain',
+    syms:'膝关节冷痛固定，遇冷加剧，热敷后减轻；下肢沉重酸胀，屈伸受限，晨起僵硬', cat:'骨关节' },
+  { no:21, disease:'项痹',         zheng:'风寒湿阻证',         doctor:'董琪',   dept:'MDT疼痛门诊',  deptCls:'dc-pain',
+    syms:'颈项冷痛僵硬，转头屈伸不利，受凉后加剧，热敷后缓解；颈部沉重困乏', cat:'骨关节' },
+  { no:22, disease:'肩痹',         zheng:'寒湿痹阻证',         doctor:'董琪',   dept:'MDT疼痛门诊',  deptCls:'dc-pain',
+    syms:'肩部冷痛，活动受限，痛点固定，遇寒加重，得温痛减；晨起僵硬，抬举外展受限', cat:'骨关节' },
+  { no:23, disease:'咳喘病',       zheng:'气虚血瘀兼寒痰伏肺证', doctor:'吕水英 / 邵娟', dept:'急诊科', deptCls:'dc-emrg',
+    syms:'反复感冒咳嗽，畏风恶寒，咳痰气喘；易过敏，易腹泻胃胀，易心慌胸闷头痛', cat:'呼吸' },
+];
+
+// 分类列表
+const CATS = ['全部','呼吸','骨关节','消化','心血管','妇科'];
+let activeCat = '全部';
+
+// 渲染分类筛选按钮（仅在方剂页存在时执行）
+const filterEl = document.getElementById('fjFilter');
+if (filterEl) {
+  CATS.forEach(c => {
+    const b = document.createElement('div');
+    b.className = 'fj-filter-btn' + (c==='全部' ? ' on' : '');
+    b.textContent = c === '全部' ? '全部方剂' : c;
+    b.onclick = () => {
+      activeCat = c;
+      document.querySelectorAll('.fj-filter-btn').forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+      renderList();
+    };
+    filterEl.appendChild(b);
+  });
+}
+
+function renderList() {
+  const q = document.getElementById('fjSearch').value.trim().toLowerCase();
+  const data = FANGJI.filter(f => {
+    const matchCat = activeCat === '全部' || f.cat === activeCat;
+    const matchQ = !q || [f.disease, f.zheng, f.dept, f.syms, f.doctor]
+      .some(s => s.toLowerCase().includes(q));
+    return matchCat && matchQ;
+  });
+
+  document.getElementById('fjCount').innerHTML =
+    `共 <strong>${data.length}</strong> 个方剂`;
+
+  const listEl = document.getElementById('fjList');
+  if (data.length === 0) {
+    listEl.innerHTML = '<div class="fj-empty">未找到匹配的方剂</div>';
+    return;
+  }
+  listEl.innerHTML = data.map(f => `
+    <div class="fj-card">
+      <div class="fj-card-head">
+        <span class="fj-no">No.${f.no}</span>
+        <div class="fj-title-block">
+          <div class="fj-disease">${f.disease}</div>
+          <div class="fj-zheng">${f.zheng}</div>
+        </div>
+        <span class="fj-dept-tag ${f.deptCls}">${f.dept}</span>
+      </div>
+      <div class="fj-card-body">
+        <div class="fj-row">
+          <span class="fj-row-label">主要症状</span>
+          <span class="fj-row-val">${f.syms}</span>
+        </div>
+        <div class="fj-row">
+          <span class="fj-row-label">拟方医师</span>
+          <span class="fj-row-val fj-doctor">${f.doctor}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+if (document.getElementById('fjSearch')) renderList();
+
+// ══ 导诊逻辑 ══
+const ZHENGS = [
+  {
+    // 以消化/全身症状为主，归心血管三病区；无气促气喘也可命中
+    name: '痰湿壅肺证',
+    disease: '咳嗽 · 喘证',
+    keys: ['咳嗽咳痰','身体困重','食欲不振','腹胀胃胀'],
+    depts: [
+      { name: '心血管三病区', cls: 'dc-card', icon: '❤️' },
+    ]
+  },
+  {
+    // 以呼吸症状为主，归呼吸科；required 确保必须选了"气促气喘"才推荐
+    name: '痰湿壅肺证',
+    disease: '肺胀 · 喘证',
+    keys: ['气促气喘','胸闷气短','咳嗽咳痰'],
+    required: '气促气喘',
+    depts: [
+      { name: '呼吸科', cls: 'dc-resp', icon: '🫁' },
+      { name: '耳鼻喉科', cls: 'dc-resp', icon: '👂' },
+    ]
+  },
+  {
+    // 哮喘：必须有哮鸣音才命中
+    name: '寒饮犯肺证',
+    disease: '哮喘',
+    keys: ['咳嗽咳痰','气促气喘','胸闷气短','哮鸣音'],
+    required: '哮鸣音',
+    depts: [
+      { name: '治未病科', cls: 'dc-prev', icon: '⚕️' },
+    ]
+  },
+  {
+    // 儿科专属：keys 全部使用儿科前缀，成人选呼吸症状不会命中此条
+    name: '肺脾气虚证',
+    disease: '咳嗽 · 喘证（儿科）',
+    keys: ['儿科-鼻塞流涕','儿科-咳嗽咳痰','儿科-气促气喘','儿科-易过敏','儿科-抵抗力差'],
+    depts: [
+      { name: '儿科', cls: 'dc-pedi', icon: '👶' },
+    ]
+  },
+  {
+    name: '气虚血瘀兼寒痰伏肺证',
+    disease: '咳喘病',
+    keys: ['反复感冒','咳嗽咳痰','气促气喘','神疲乏力','畏寒怕冷','胸闷气短','大便稀溏','腹胀胃胀','头痛','头晕','易过敏'],
+    //manifestations: ['反复感冒','咳嗽咳痰','气喘气短','神疲乏力','畏寒怕冷','易腹泻','心慌胸闷','头晕乏力'],
+    depts: [
+      { name: '急诊科', cls: 'dc-emrg', icon: '🚨' },
+    ]
+  },
+  {
+    name: '寒凝血瘀证',
+    disease: '痹证',
+    keys: ['关节冷痛','关节僵硬','屈伸不利','畏寒怕冷','遇寒加重'],
+    //manifestations: ['关节冷痛','关节僵硬','屈伸不利','痛处固定','遇寒加重'],
+    depts: [
+      { name: '治未病科', cls: 'dc-prev', icon: '⚕️' },
+      { name: '风湿免疫八科', cls: 'dc-bone', icon: '🔬' },
+    ]
+  },
+  {
+    name: '风湿痹阻证',
+    disease: '痹病',
+    keys: ['关节冷痛','关节僵硬','屈伸不利','遇寒加重'],
+    //manifestations: ['四肢关节肿痛','阴雨天加重','关节僵硬','屈伸不利','身体困重'],
+    depts: [
+      { name: '风湿免疫七科', cls: 'dc-bone', icon: '🔬' },
+    ]
+  },
+  {
+    name: '寒湿痹阻证',
+    disease: '痹病',
+    keys: ['关节冷痛','保暖减轻'],
+    //manifestations: ['关节畏寒冷痛','保暖后减轻','腰背冷痛僵硬','颈肩冷痛','身体沉重乏困'],
+    depts: [
+      { name: '风湿免疫一科', cls: 'dc-bone', icon: '🔬' },
+      { name: '风湿免疫二科', cls: 'dc-bone', icon: '🔬' },
+      { name: '风湿免疫六科', cls: 'dc-bone', icon: '🔬' },
+    ]
+  },
+  {
+    name: '寒湿痹阻证',
+    disease: '大偻',
+    keys: ['关节僵硬','腰背冷痛','畏寒怕冷','身体困重','遇寒加重'],
+    //manifestations: ['关节畏寒冷痛','保暖后减轻','腰背冷痛僵硬','颈肩冷痛','身体沉重乏困'],
+    depts: [
+      { name: '风湿免疫七科', cls: 'dc-bone', icon: '🔬' },
+    ]
+  },
+  {
+    name: '寒湿痹阻证',
+    disease: '肩痹',
+    keys: ['关节僵硬','颈肩冷痛','屈伸不利','遇寒加重','保暖减轻'],
+    //manifestations: ['关节畏寒冷痛','保暖后减轻','腰背冷痛僵硬','颈肩冷痛','身体沉重乏困'],
+    depts: [
+      { name: 'MDT疼痛门诊', cls: 'dc-pain', icon: '🏥' },
+    ]
+  },
+  {
+    name: '风寒湿痹阻证',
+    disease: '痹病',
+    keys: ['关节冷痛','关节僵硬','畏寒怕冷','神疲乏力','抵抗力差','腰背酸困'],
+    //manifestations: ['关节疼痛僵硬','畏寒怕冷','肢体冷痛','神疲乏力','腰背酸困','抵抗力差'],
+    depts: [
+      { name: '风湿免疫三科', cls: 'dc-bone', icon: '🔬' },
+    ]
+  },
+  {
+    name: '风寒痹阻证',
+    disease: '骨痹',
+    keys: ['关节冷痛','关节僵硬','遇寒加重'],
+    //manifestations: ['膝关节怕冷僵硬','上下楼疼痛','受凉后加重','肢体麻木','畏寒怕冷'],
+    depts: [
+      { name: '骨科', cls: 'dc-bone', icon: '🦴' },
+    ]
+  },
+  {
+    name: '风寒痹阻证',
+    disease: '痹症',
+    keys: ['畏寒怕冷','大便稀溏','肢体水肿'],
+    //manifestations: ['膝关节怕冷僵硬','上下楼疼痛','受凉后加重','肢体麻木','畏寒怕冷'],
+    depts: [
+      { name: '针灸推拿康复科', cls: 'dc-rehb', icon: '🙌' },
+    ]
+  },
+  {
+    name: '阳虚寒凝证',
+    disease: '膝痹',
+    keys: ['关节僵硬','关节冷痛','遇寒加重','保暖减轻','畏寒怕冷','屈伸不利'],
+    //manifestations: ['膝关节冷痛固定','遇冷加剧','热敷后减轻','下肢沉重酸胀','晨起僵硬'],
+    depts: [
+      { name: 'MDT疼痛门诊', cls: 'dc-pain', icon: '🏥' },
+    ]
+  },
+  {
+    name: '风寒湿阻证',
+    disease: '项痹',
+    keys: ['颈肩冷痛','畏寒怕冷','遇寒加重','关节僵硬','保暖减轻','屈伸不利'],
+    //manifestations: ['颈项冷痛僵硬','转头不利','受凉加剧','颈部沉重困乏','畏寒怕冷'],
+    depts: [
+      { name: 'MDT疼痛门诊', cls: 'dc-pain', icon: '🏥' },
+    ]
+  },
+  {
+    name: '血虚寒凝证',
+    disease: '痹症',
+    keys: ['肢体麻木','畏寒怕冷','关节冷痛','神疲乏力','抵抗力差'],
+    //manifestations: ['肢体麻木无力','畏寒怕冷','肢体冷痛','神疲乏力','抵抗力差'],
+    depts: [
+      { name: '神经内分泌科', cls: 'dc-neur', icon: '🧠' },
+    ]
+  },
+  {
+    name: '痰湿中阻证',
+    disease: '痞满',
+    keys: ['腹胀胃胀','恶心欲呕','食欲不振','身体困重','大便稀溏','口中黏腻','大便黏滞不爽'],
+    //manifestations: ['腹部痞塞胀满','胸膈满闷','恶心欲呕','口中黏腻','不思饮食','身体困重'],
+    depts: [
+      { name: '心血管二病区', cls: 'dc-card', icon: '❤️' },
+    ]
+  },
+  {
+    name: '脾胃虚弱证',
+    disease: '胃痛 · 腹胀',
+    keys: ['胃脘冷痛','腹胀胃胀','食欲不振','大便稀溏','畏寒怕冷','神疲乏力','遇寒加重','保暖减轻'],
+    //manifestations: ['胃脘隐痛冷痛','得温则减','腹部胀满','食欲不振','大便稀溏','畏寒肢冷'],
+    depts: [
+      { name: '消化科', cls: 'dc-dige', icon: '🫃' },
+    ]
+  },
+  {
+    name: '寒凝心脉证',
+    disease: '胸痹 · 心悸',
+    keys: ['胸痛心悸','畏寒怕冷','四肢发凉','神疲乏力','胸闷气短'],
+    //manifestations: ['胸痛如绞','遇寒即作','胸痛彻背','肢冷汗出','心悸乏力','四肢厥冷'],
+    depts: [
+      { name: '心血管二病区', cls: 'dc-card', icon: '❤️' },
+    ]
+  },
+  {
+    name: '寒凝血脉证',
+    disease: '心衰',
+    keys: ['畏寒怕冷','四肢发凉','下肢水肿','口唇青紫'],
+    //manifestations: ['怕冷四肢发凉','口唇指甲青紫','下肢水肿明显','神疲乏力'],
+    depts: [
+      { name: '心血管三病区', cls: 'dc-card', icon: '❤️' },
+    ]
+  },
+  {
+    name: '寒凝血瘀证',
+    disease: '痛经',
+    keys: ['痛经','月经量少色暗','小腹冷痛'],
+    //manifestations: ['经期小腹冷痛','月经量少色暗','血块较多','畏寒怕冷'],
+    depts: [
+      { name: '妇产科', cls: 'dc-gyne', icon: '♀️' },
+    ]
+  },
+];
+
+const selected = new Set();
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    chip.classList.toggle('on');
+    const v = chip.dataset.val;
+    chip.classList.contains('on') ? selected.add(v) : selected.delete(v);
+    document.getElementById('count').textContent = selected.size;
+    document.getElementById('submitBtn').disabled = selected.size === 0;
+  });
+});
+
+function goResult() {
+  document.getElementById('step1').classList.remove('active');
+  document.getElementById('loading').style.display = 'block';
+  setTimeout(() => {
+    let scored = ZHENGS
+      .map(z => ({ ...z, hits: z.keys.filter(k => selected.has(k)).length }))
+      // 若证型设了 required，必须选中该症状才纳入
+      .filter(z => z.hits > 0 && (!z.required || selected.has(z.required)))
+      .sort((a,b) => b.hits - a.hits);
+    if (scored.length === 0) scored = ZHENGS.slice(0,2).map(z => ({...z, hits:0}));
+    const top3 = scored.slice(0,3);
+    const maxHits = top3[0]?.hits || 1;
+    const rankCls  = ['zr1','zr2','zr3'];
+    const rankText = ['一','二','三'];
+    document.getElementById('result-desc').textContent =
+      `根据您的 ${selected.size} 个症状，初步辨证如下，建议至对应科室面诊使用三伏贴`;
+    document.getElementById('resultBody').innerHTML = top3.map((z,i) => {
+      const pct = Math.round((z.hits / maxHits) * 100);
+      const chips = z.keys.map(m => {
+        const display = m.replace(/^儿科-/, '');
+        const hit = selected.has(m) || selected.has('儿科-' + m);
+        return `<span class="manif-chip${hit?' hit':''}">${display}</span>`;
+      }).join('');
+      const deptTags = z.depts.map(d =>
+        `<span class="dept-tag ${d.cls}">${d.icon} ${d.name}</span>`
+      ).join('');
+      return `
+        <div class="zheng-card">
+          <div class="zheng-head">
+            <div class="zheng-rank ${rankCls[i]}">${rankText[i]}</div>
+            <div class="zheng-info">
+              <div class="zheng-name">${z.name}</div>
+              <div class="zheng-disease">${z.disease}</div>
+            </div>
+            <div class="match-col">
+              <span class="match-pct">${pct}%</span>
+              <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+            </div>
+          </div>
+          <div class="zheng-body">
+            <div>
+              <div class="manif-label">常见表现</div>
+              <div class="manif-chips">${chips}</div>
+            </div>
+            <div class="dept-row">
+              <span class="dept-label">建议就诊：</span>${deptTags}
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('step2').classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }, 1200);
+}
+
+function goWellness() {
+  document.getElementById('step1').classList.remove('active');
+  document.getElementById('loading').style.display = 'block';
+  setTimeout(() => {
+    document.getElementById('result-desc').textContent =
+      '您暂无明显不适症状，建议前往治未病科进行体质辨识与健康调养';
+    document.getElementById('resultBody').innerHTML = `
+      <div class="zheng-card">
+        <div class="zheng-head">
+          <div class="zheng-rank zr1">✦</div>
+          <div class="zheng-info">
+            <div class="zheng-name">健康养生调理</div>
+            <div class="zheng-disease">体质辨识 · 冬病夏治预防</div>
+          </div>
+        </div>
+        <div class="zheng-body">
+          <div>
+            <div class="manif-label">三伏贴养生适用人群</div>
+            <div class="manif-chips">
+              <span class="manif-chip">亚健康状态</span>
+              <span class="manif-chip">体质偏寒</span>
+              <span class="manif-chip">易疲劳</span>
+              <span class="manif-chip">抵抗力偏低</span>
+              <span class="manif-chip">预防冬季易发病</span>
+              <span class="manif-chip">中医体质调理</span>
+            </div>
+          </div>
+          <div style="font-size:13px;color:var(--ink-2);line-height:1.7;padding-top:10px;border-top:1px solid var(--paper-2);">
+            三伏贴不仅用于治病，也适合无明显症状但希望通过"冬病夏治"增强体质、预防疾病的人群。治未病科医师将根据您的体质类型，为您制定个性化的穴位贴敷及养生方案。
+          </div>
+          <div class="dept-row">
+            <span class="dept-label">建议就诊：</span>
+            <span class="dept-tag dc-prev">⚕️ 治未病科</span>
+          </div>
+        </div>
+      </div>`;
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('step2').classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }, 800);
+}
+
+function goBack() {
+  document.getElementById('step2').classList.remove('active');
+  document.getElementById('step1').classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ══ 页面切换 ══
+function switchPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
