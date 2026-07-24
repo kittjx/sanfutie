@@ -57,8 +57,6 @@
   .main { width:100%; max-width:480px; padding:0 0 40px; }
   .page { display:none; }
   .page.active { display:block; }
-  /* 全部方剂Tab隐藏时，导诊页始终显示 */
-  #page-guide { display:block; }
 
   /* ── Step visibility ── */
   .step { display:none; }
@@ -260,12 +258,11 @@
 
 <!-- 顶部导航 -->
 <!-- 全部方剂 Tab 暂时隐藏，代码保留 -->
-<!--
 <div class="nav-tabs" role="tablist">
   <div class="nav-tab active" role="tab" onclick="switchPage('guide')">🔍 症状导诊</div>
   <div class="nav-tab" role="tab" onclick="switchPage('list')">📋 全部方剂</div>
 </div>
--->
+
 
 <div class="main">
 
@@ -393,15 +390,15 @@
 
   </div><!-- /page-guide -->
 
-  <!-- ══════════ PAGE 2：全部方剂（暂时隐藏，代码保留）══════════ -->
-  <!-- <div class="page" id="page-list">
+  <!-- ══════════ PAGE 2：全部方剂 ══════════ -->
+  <div class="page" id="page-list">
     <div class="fj-search-bar">
       <input class="fj-search" type="search" placeholder="搜索病种、证型、科室…" id="fjSearch" oninput="renderList()">
     </div>
     <div class="fj-filter" id="fjFilter"></div>
     <div class="fj-count" id="fjCount"></div>
     <div class="fj-list" id="fjList"></div>
-  </div> -->
+  </div>
 
 </div><!-- /main -->
 
@@ -413,77 +410,6 @@
 // ══════════════════════════════════════════════
 // 数据来源：西安市第五医院三伏贴方剂症状统计台账
 // ══════════════════════════════════════════════
-
-// 方剂完整列表（供"全部方剂"页使用）
-// FANGJI 已合并到 ZHENGS，见下方数据
-
-// 分类列表
-const CATS = ['全部','呼吸','骨关节','消化','心血管','妇科'];
-let activeCat = '全部';
-
-// 渲染分类筛选按钮（仅在方剂页存在时执行）
-const filterEl = document.getElementById('fjFilter');
-if (filterEl) {
-  CATS.forEach(c => {
-    const b = document.createElement('div');
-    b.className = 'fj-filter-btn' + (c==='全部' ? ' on' : '');
-    b.textContent = c === '全部' ? '全部方剂' : c;
-    b.onclick = () => {
-      activeCat = c;
-      document.querySelectorAll('.fj-filter-btn').forEach(x => x.classList.remove('on'));
-      b.classList.add('on');
-      renderList();
-    };
-    filterEl.appendChild(b);
-  });
-}
-
-function renderList() {
-  const q = document.getElementById('fjSearch').value.trim().toLowerCase();
-  // 直接从 ZHENGS 读取，无需维护 FANGJI
-  const data = ZHENGS.filter(f => {
-    const matchCat = activeCat === '全部' || f.cat === activeCat;
-    const deptNames = f.depts.map(d => d.name).join(' ');
-    const matchQ = !q || [f.disease, f.name, deptNames, f.syms || '', f.doctor || '']
-      .some(s => s.toLowerCase().includes(q));
-    return matchCat && matchQ;
-  });
-
-  document.getElementById('fjCount').innerHTML =
-    `共 <strong>${data.length}</strong> 个方剂`;
-
-  const listEl = document.getElementById('fjList');
-  if (data.length === 0) {
-    listEl.innerHTML = '<div class="fj-empty">未找到匹配的方剂</div>';
-    return;
-  }
-  listEl.innerHTML = data.map((f, i) => {
-    const deptCls = f.depts[0]?.cls || 'dc-prev';
-    const deptLabel = f.depts.map(d => d.name).join(' / ');
-    return `
-    <div class="fj-card">
-      <div class="fj-card-head">
-        <span class="fj-no">No.${i + 1}</span>
-        <div class="fj-title-block">
-          <div class="fj-disease">${f.disease}</div>
-          <div class="fj-zheng">${f.name}</div>
-        </div>
-        <span class="fj-dept-tag ${deptCls}">${deptLabel}</span>
-      </div>
-      <div class="fj-card-body">
-        <div class="fj-row">
-          <span class="fj-row-label">主要症状</span>
-          <span class="fj-row-val">${f.syms || '—'}</span>
-        </div>
-        <div class="fj-row">
-          <span class="fj-row-label">拟方医师</span>
-          <span class="fj-row-val fj-doctor">${f.doctor || '—'}</span>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-if (document.getElementById('fjSearch')) renderList();
 
 // ══ 导诊逻辑 ══
 const ZHENGS = [
@@ -746,6 +672,74 @@ const ZHENGS = [
     ]
   },
 ];
+
+// 分类列表
+const CATS = ['全部','呼吸','骨关节','消化','心血管','妇科'];
+let activeCat = '全部';
+
+// 渲染分类筛选按钮（仅在方剂页存在时执行）
+const filterEl = document.getElementById('fjFilter');
+CATS.forEach(c => {
+  const b = document.createElement('div');
+  b.className = 'fj-filter-btn' + (c==='全部' ? ' on' : '');
+  b.textContent = c === '全部' ? '全部方剂' : c;
+  b.onclick = () => {
+    activeCat = c;
+    document.querySelectorAll('.fj-filter-btn').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    renderList();
+  };
+  filterEl.appendChild(b);
+});
+
+function renderList() {
+  const q = document.getElementById('fjSearch').value.trim().toLowerCase();
+  // 直接从 ZHENGS 读取，无需维护 FANGJI
+  const data = ZHENGS.filter(f => {
+    const matchCat = activeCat === '全部' || f.cat === activeCat;
+    const deptNames = f.depts.map(d => d.name).join(' ');
+    const matchQ = !q || [f.disease, f.name, deptNames, f.syms || '', f.doctor || '']
+      .some(s => s.toLowerCase().includes(q));
+    return matchCat && matchQ;
+  });
+
+  document.getElementById('fjCount').innerHTML =
+    `共 <strong>${data.length}</strong> 个方剂`;
+
+  const listEl = document.getElementById('fjList');
+  if (data.length === 0) {
+    listEl.innerHTML = '<div class="fj-empty">未找到匹配的方剂</div>';
+    return;
+  }
+  listEl.innerHTML = data.map((f, i) => {
+    const deptCls = f.depts[0]?.cls || 'dc-prev';
+    const deptLabel = f.depts.map(d => d.name).join(' / ');
+    return `
+    <div class="fj-card">
+      <div class="fj-card-head">
+        <span class="fj-no">No.${i + 1}</span>
+        <div class="fj-title-block">
+          <div class="fj-disease">${f.disease}</div>
+          <div class="fj-zheng">${f.name}</div>
+        </div>
+        <span class="fj-dept-tag ${deptCls}">${deptLabel}</span>
+      </div>
+      <div class="fj-card-body">
+        <div class="fj-row">
+          <span class="fj-row-label">主要症状</span>
+          <span class="fj-row-val">${f.syms || '—'}</span>
+        </div>
+        <div class="fj-row">
+          <span class="fj-row-label">拟方医师</span>
+          <span class="fj-row-val fj-doctor">${f.doctor || '—'}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+renderList();
+
+
 
 const selected = new Set();
 document.querySelectorAll('.chip').forEach(chip => {
